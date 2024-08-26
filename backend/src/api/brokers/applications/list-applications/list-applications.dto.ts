@@ -18,6 +18,7 @@ export class BrokerApplicationsListRequestDto {
   /**
    * Optional flag for application status
    */
+
   @ApiPropertyOptional({
     description: 'Optional flag for application status',
     enum: ApplicationStatus,
@@ -81,7 +82,8 @@ export class ApplicationDto extends PickType(Application, [
 ]) { }
 
 export class BrokerApplicationPostResponseDto extends SuccessResponseDto {
-  readonly loanAmount: number
+  readonly loanAmount?: number;
+  readonly loanAmountMessage: string;
 }
 
 class BrokerApplicationDto extends PickType(Application, [

@@ -9,7 +9,6 @@ import {
 } from '@nestjs/swagger';
 import { Application } from 'src/models/applications/application.entity';
 import {
-  ApplicationDto,
   BrokerApplicationPostResponseDto,
   BrokerApplicationsListBadRequestResponseDto,
   BrokerApplicationsListRequestDto,
@@ -27,6 +26,7 @@ import { formatResponseTable } from 'src/common/swagger';
 import User from 'src/common/decorators/user';
 import { Op } from 'sequelize';
 import { ApplicationStatus } from 'src/enums/application-status.enum';
+import { ApplicationDto } from 'src/models/applications/application.dto';
 
 /**
  * Broker API endpoint for listing applications they have submitted with optional result filtering.
@@ -140,12 +140,19 @@ export class BrokerApplicationsListController {
     @User() user: BrokerDto,
     @Body() body: ApplicationDto
   ): Promise<BrokerApplicationPostResponseDto> {
-    const avgLoanAmount = await this.applicationEntity.getAverageLoanAmount()
-    const loanAmount = body.loanAmount !== avgLoanAmount ? body.loanAmount : null;
-    // const application = await this.applicationEntity.create({ ...body, status: ApplicationStatus.Submitted, brokerId: user.id });
+    
+    const avgLoanAmount = await this.applicationEntity.getAverageLoanAmount();
+
+    const application = await this.applicationEntity.create({ ...body, status: ApplicationStatus.Submitted, brokerId: user.id });
+    
+    const loanAmountMessage =  application.loanAmount > avgLoanAmount ?
+      'new loan\'s loan_amount is above the average' :
+      'new loan\'s loan_amount is below the average';
+
     return {
       success: true,
-      loanAmount
+      loanAmount: application.loanAmount,
+      loanAmountMessage: loanAmountMessage
     };
   }
 }

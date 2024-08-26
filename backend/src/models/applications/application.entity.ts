@@ -248,7 +248,7 @@ export class Application extends Model<Application> {
       ],
     });
 
-    const res = result?.get('averageLoanAmount') || 0;
-    return res as number;
+    const res = parseFloat(result?.get('averageLoanAmount').toString()) || 0;
+    return res;
   }
 }
