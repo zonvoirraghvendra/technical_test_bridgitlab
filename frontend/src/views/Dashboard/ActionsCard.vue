@@ -88,7 +88,8 @@ const submitApplication = async () => {
     return;
   }
   const response = await api.applications.post(formData.value)
-  if (response.success) toast.success('Application Saved Successfully.')
+  
+  if (response.success) toast.success('Application Saved Successfully, ' + response.loanAmountMessage)
   else {
     toast.error('Error occurred while saving application')
     formData.value.applicantName = '';

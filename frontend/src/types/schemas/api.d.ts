@@ -78,6 +78,7 @@ export interface components {
     };
     BrokerApplicationsPostResponseDto: {
       success: Record<string, never>;
+      loanAmountMessage: Record<string, never>;
     };
     BrokerApplicationsListBadRequestResponseDto: {
       /**
