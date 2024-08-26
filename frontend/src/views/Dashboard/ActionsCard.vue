@@ -25,7 +25,68 @@ const formData = ref({
   savingsContribution: 0,
 });
 
+const errors = ref<{ [key: string]: string }>({});
+
+const validateForm = () => {
+  errors.value = {};
+
+  if (!formData.value.applicantName) {
+    errors.value.applicantName = 'Applicant Name is required.';
+  }
+  if (!formData.value.applicantEmail || !/\S+@\S+\.\S+/.test(formData.value.applicantEmail)) {
+    errors.value.applicantEmail = 'A valid Email is required.';
+  }
+  if (!formData.value.applicantMobilePhoneNumber || !/^\+?\d{10,15}$/.test(formData.value.applicantMobilePhoneNumber)) {
+    errors.value.applicantMobilePhoneNumber = 'A valid Mobile Phone Number is required.';
+  }
+  if (!formData.value.applicantAddress) {
+    errors.value.applicantAddress = 'Applicant Address is required.';
+  }
+  if (formData.value.annualIncomeBeforeTax <= 0) {
+    errors.value.annualIncomeBeforeTax = 'Annual Income Before Tax is required and must be greater than 0.';
+  }
+  if (!formData.value.incomingAddress) {
+    errors.value.incomingAddress = 'Incoming Address is required.';
+  }
+  if (formData.value.incomingDeposit <= 0) {
+    errors.value.incomingDeposit = 'Incoming Deposit is required and must be greater than 0.';
+  }
+  if (formData.value.incomingPrice <= 0) {
+    errors.value.incomingPrice = 'Incoming Price is required and must be greater than 0.';
+  }
+  if (formData.value.incomingStampDuty < 0) {
+    errors.value.incomingStampDuty = 'Incoming Stamp Duty must be 0 or greater.';
+  }
+  if (formData.value.loanAmount <= 0) {
+    errors.value.loanAmount = 'Loan Amount is required and must be greater than 0.';
+  }
+  if (formData.value.loanDuration <= 0) {
+    errors.value.loanDuration = 'Loan Duration is required and must be greater than 0.';
+  }
+  if (formData.value.monthlyExpenses < 0) {
+    errors.value.monthlyExpenses = 'Monthly Expenses must be 0 or greater.';
+  }
+  if (!formData.value.outgoingAddress) {
+    errors.value.outgoingAddress = 'Outgoing Address is required.';
+  }
+  if (formData.value.outgoingMortgage < 0) {
+    errors.value.outgoingMortgage = 'Outgoing Mortgage must be 0 or greater.';
+  }
+  if (formData.value.outgoingValuation < 0) {
+    errors.value.outgoingValuation = 'Outgoing Valuation must be 0 or greater.';
+  }
+  if (formData.value.savingsContribution < 0) {
+    errors.value.savingsContribution = 'Savings Contribution must be 0 or greater.';
+  }
+
+  return Object.keys(errors.value).length === 0;
+};
+
 const submitApplication = async () => {
+  if (!validateForm()) {
+    toast.error('Please correct the errors before submitting.');
+    return;
+  }
   const response = await api.applications.post(formData.value)
   if (response.success) toast.success('Application Saved Successfully.')
   else {
@@ -47,7 +108,7 @@ const submitApplication = async () => {
     formData.value.outgoingValuation = 0;
     formData.value.savingsContribution = 0;
   }
-  modal.confirm(false)
+  modal.confirm(false);
 }
 </script>
 
@@ -65,49 +126,76 @@ const submitApplication = async () => {
     <BModal :visible="modal.isVisible.value" :confirm="modal.confirm">
       <template #header>Submit loan application</template>
 
-      <form @submit.prevent="submitApplication()">
-        <!-- Need to change with v-for after change state with object -->
+      <form >
         <label for="applicant_name">Name</label>
         <BTextInput v-model="formData.applicantName" id="applicant_name" type="text" required />
+        <span class="error" v-if="errors.applicantName">{{ errors.applicantName }}</span>
 
         <label for="applicant_email">Email</label>
         <BTextInput v-model="formData.applicantEmail" id="applicant_email" type="email" required />
+        <span class="error" v-if="errors.applicantEmail">{{ errors.applicantEmail }}</span>
 
         <label for="applicant_mobile_phone_number">Mobile Phone Number</label>
-        <BTextInput v-model="formData.applicantMobilePhoneNumber" id="applicant_mobile_phone_number" type="tel"
-          required />
+        <BTextInput v-model="formData.applicantMobilePhoneNumber" id="applicant_mobile_phone_number" type="tel" required />
+        <span class="error" v-if="errors.applicantMobilePhoneNumber">{{ errors.applicantMobilePhoneNumber }}</span>
 
         <label for="applicant_address">Applicant Address</label>
         <BTextInput v-model="formData.applicantAddress" id="applicant_address" required />
+        <span class="error" v-if="errors.applicantAddress">{{ errors.applicantAddress }}</span>
+
         <label for="annual_income_before_tax">Annual Income Before Tax</label>
         <BNumberInput v-model="formData.annualIncomeBeforeTax" id="annual_income_before_tax" required />
+        <span class="error" v-if="errors.annualIncomeBeforeTax">{{ errors.annualIncomeBeforeTax }}</span>
+
         <label for="incoming_address">Incoming Address</label>
         <BTextInput v-model="formData.incomingAddress" id="incoming_address" required />
+        <span class="error" v-if="errors.incomingAddress">{{ errors.incomingAddress }}</span>
+
         <label for="incoming_deposit">Incoming deposit</label>
         <BNumberInput v-model="formData.incomingDeposit" id="incoming_deposit" required />
+        <span class="error" v-if="errors.incomingDeposit">{{ errors.incomingDeposit }}</span>
 
         <label for="incoming_price">Incoming Price</label>
         <BNumberInput v-model="formData.incomingPrice" id="incoming_price" required />
+        <span class="error" v-if="errors.incomingPrice">{{ errors.incomingPrice }}</span>
+
         <label for="incoming_stamp_duty">Incoming Stamp Duty</label>
         <BNumberInput v-model="formData.incomingStampDuty" id="incoming_stamp_duty" required />
+        <span class="error" v-if="errors.incomingStampDuty">{{ errors.incomingStampDuty }}</span>
+
         <label for="loan_amount">Loan Amount</label>
         <BNumberInput v-model="formData.loanAmount" id="loan_amount" required />
+        <span class="error" v-if="errors.loanAmount">{{ errors.loanAmount }}</span>
+
         <label for="loan_duration">Loan Duration</label>
         <BNumberInput v-model="formData.loanDuration" id="loan_duration" required />
+        <span class="error" v-if="errors.loanDuration">{{ errors.loanDuration }}</span>
+
         <label for="monthly_expenses">Monthly Expenses</label>
         <BNumberInput v-model="formData.monthlyExpenses" id="monthly_expenses" required />
+        <span class="error" v-if="errors.monthlyExpenses">{{ errors.monthlyExpenses }}</span>
+
         <label for="outgoing_address">Outgoing Address</label>
         <BTextInput v-model="formData.outgoingAddress" id="outgoing_address" required />
+        <span class="error" v-if="errors.outgoingAddress">{{ errors.outgoingAddress }}</span>
+
         <label for="outgoing_mortgage">Outgoing Mortgage</label>
         <BNumberInput v-model="formData.outgoingMortgage" id="outgoing_mortgage" required />
+        <span class="error" v-if="errors.outgoingMortgage">{{ errors.outgoingMortgage }}</span>
+
         <label for="outgoing_valuation">Outgoing Valuation</label>
         <BNumberInput v-model="formData.outgoingValuation" id="outgoing_valuation" required />
+        <span class="error" v-if="errors.outgoingValuation">{{ errors.outgoingValuation }}</span>
+
         <label for="savings_contribution">Savings Contribution</label>
         <BNumberInput v-model="formData.savingsContribution" id="savings_contribution" required />
+        <span class="error" v-if="errors.savingsContribution">{{ errors.savingsContribution }}</span>
+
+        <!-- Add validation errors display for other fields similarly -->
       </form>
 
       <template #footer>
-        <BButton type="submit" variant="primary" label="Submit"></BButton>
+        <BButton @click="submitApplication()" type="submit" variant="primary" label="Submit"></BButton>
         <BButton label="Cancel" @click="modal.confirm(false)"></BButton>
       </template>
     </BModal>
@@ -140,5 +228,10 @@ const submitApplication = async () => {
 .b-icon {
   width: 5rem;
   height: 5rem;
+}
+.error{
+  color: red;
+  font-size: 0.8rem;
+  display:block;
 }
 </style>
